@@ -1,14 +1,10 @@
+import pandas as pd
 import pickle
 import streamlit as st
 import requests
 
 def fetch_poster(movie_id):
-    url = "https://api.themoviedb.org/3/movie/{}?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US".format(movie_id)
-    data = requests.get(url)
-    data = data.json()
-    poster_path = data['poster_path']
-    full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
-    return full_path
+    return "poster.jpg"
 
 def recommend(movie):
     index = movies[movies['title'] == movie].index[0]
@@ -24,19 +20,20 @@ def recommend(movie):
     return recommended_movie_names,recommended_movie_posters
 
 
-st.header('AI Movie Recommender Engine')
-movies = pickle.load(open('model/movie_list.pkl','rb'))
+st.header('Movie Recommender System')
+movies_dict = pickle.load(open('model/movie_list.pkl','rb'))
+movies = pd.DataFrame(movies_dict)
 similarity = pickle.load(open('model/similarity.pkl','rb'))
 
 movie_list = movies['title'].values
 selected_movie = st.selectbox(
-    "Which movie did you enjoy recently",
+    "Type or select a movie from the dropdown",
     movie_list
 )
 
 if st.button('Show Recommendation'):
     recommended_movie_names,recommended_movie_posters = recommend(selected_movie)
-    col1, col2, col3, col4, col5 = st.beta_columns(5)
+    col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
         st.text(recommended_movie_names[0])
         st.image(recommended_movie_posters[0])
